@@ -44,7 +44,6 @@ class _MyAppState extends State<MyApp> {
     bookname.clear();
     authorname.clear();
     publishyear.clear();
-    fetchBooks(); // Refresh list after adding
   }
 
   // Fetch books from API
@@ -57,22 +56,10 @@ class _MyAppState extends State<MyApp> {
       books = data.map((json) => Book.fromJson(json)).toList();
     });
   }
-
-  Future<void> updateBook(String id, String newName, String newAuthor, String newYear) async {
-     final String apiUrl = 'https://681cd33bf74de1d219adee2a.mockapi.io/books/$id';
-
-     await http.put(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'name': newName,
-        'author': newAuthor,
-        'year': newYear,
-      }),
-    );
-      fetchBooks(); // Refresh data in the UI
-}
-
+  deleteBook(String id){
+    final String deleteUrl = 'https://681cd33bf74de1d219adee2a.mockapi.io/books/$id';
+    http.delete(Uri.parse(deleteUrl));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -126,10 +113,14 @@ class _MyAppState extends State<MyApp> {
               ),
               const SizedBox(height: 12),
               ElevatedButton.icon(
-                onPressed: addBook,
+                onPressed: (){
+                  setState(() {
+                    addBook();
+                    fetchBooks();
+                  });
+                },
                 label:Text(
-                  flag ?"Add Book":"Update",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  "Add Book", style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blueGrey,
@@ -157,45 +148,25 @@ class _MyAppState extends State<MyApp> {
                             child: Container(
                               decoration: BoxDecoration(
                                 color: Colors.blueGrey,
-                                borderRadius: BorderRadius.circular(5),
+                                borderRadius: BorderRadius.circular(5)
                               ),
-                              child: Row(
-                                children: [
-                                    CircleAvatar(
-                                      backgroundColor: Colors.white,
-                                      child: Text('${index + 1}'),
+                              child: ListTile(   
+                                      leading: CircleAvatar(
+                                              backgroundColor: Colors.white,
+                                              child: Text('${index + 1}'),
+                                            ),
+                                      title:Text(book.name, style: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
+                                      subtitle:Text("Author: ${book.author} | Year: ${book.year}", style: const TextStyle(color: Colors.white70,fontWeight: FontWeight.bold),),
+                                      trailing:GestureDetector(
+                                                  onTap: (){
+                                                    setState(() {
+                                                      deleteBook(book.id);
+                                                      fetchBooks();
+                                                    });
+                                                  },
+                                                  child: Icon(Icons.delete,color:Colors.white ,size: 28,),
+                                                ),
                                     ),
-                                    Column(
-                                      children: [
-                                        Text(book.name, style: const TextStyle(color: Colors.white),),
-                                        Text("Author: ${book.author} | Year: ${book.year}", style: const TextStyle(color: Colors.white70),),
-                                      ],
-                                    ),
-                                    Row(
-                                    children: [
-                                      GestureDetector(
-                                          onTap: (){
-                                            flag = false;
-                                            var newName =bookname.text=book.name;
-                                            var newAuthor =authorname.text=book.author;
-                                            var newYear =publishyear.text=book.year;
-                                            updateBook(book.id, newName, newAuthor, newYear);
-                                          },
-                                          child: Icon(Icons.edit,color:Colors.white ,size: 28,),
-                                        ),
-                                        SizedBox(width: 10),
-                                      GestureDetector(
-                                          onTap: (){
-                                            final String deleteUrl = 'https://681cd33bf74de1d219adee2a.mockapi.io/books/${book.id}';
-                                            http.delete(Uri.parse(deleteUrl));
-                                            fetchBooks();
-                                          },
-                                          child: Icon(Icons.delete,color:Colors.white ,size: 28,),
-                                        ),
-                                    ],
-                                  )
-                                ],
-                              ),
                             ),
                           );
                         },
@@ -208,9 +179,3 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
-
-// ListTile(
-//                                 leading: 
-//                                 title: Text(book.name, style: const TextStyle(color: Colors.white),),
-//                                 subtitle: Text("Author: ${book.author} | Year: ${book.year}", style: const TextStyle(color: Colors.white70),),
-//                                 trailing: 
