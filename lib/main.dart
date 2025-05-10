@@ -68,10 +68,10 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         appBar: AppBar(
           title: const Text(
-            "Working with API",
-            style: TextStyle(color: Colors.white),
+            "Library API",
+            style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold,letterSpacing: 3),
           ),
-          backgroundColor: Colors.blueGrey,
+          backgroundColor: const Color.fromARGB(255, 12, 54, 79),
           centerTitle: true,
         ),
         body: Padding(
@@ -81,7 +81,7 @@ class _MyAppState extends State<MyApp> {
               const SizedBox(height: 10),
               const Text(
                 "Add New Book",
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(color:  Color.fromARGB(255, 12, 54, 79), fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
               TextField(
@@ -123,22 +123,25 @@ class _MyAppState extends State<MyApp> {
                   "Add Book", style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blueGrey,
+                  backgroundColor:  const Color.fromARGB(255, 12, 54, 79),
                   padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 18),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
                   elevation: 4,
-                  shadowColor: Colors.blueGrey.shade700,
+                  shadowColor:  const Color.fromARGB(255, 12, 54, 79),
                 ),
               ),
               const SizedBox(height: 20),
-              const Divider(),
-              const Text("Book List", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Divider(
+                color:  Color.fromARGB(255, 12, 54, 79),
+                thickness: 5,
+              ),
+              const Text("Book List", style: TextStyle(color: Color.fromARGB(255, 12, 54, 79),fontSize: 20, fontWeight: FontWeight.bold)),
               const SizedBox(height: 10),
               Expanded(
                 child: books.isEmpty
-                    ? const Center(child: Text("No books available."))
+                    ? const Center(child: Text("No books available.",style: TextStyle(color:  Color.fromARGB(255, 12, 54, 79)),))
                     : ListView.builder(
                         itemCount: books.length,
                         itemBuilder: (context, index) {
@@ -147,13 +150,13 @@ class _MyAppState extends State<MyApp> {
                             padding: const EdgeInsets.symmetric(vertical: 2,horizontal: 2),
                             child: Container(
                               decoration: BoxDecoration(
-                                color: Colors.blueGrey,
+                                color:  const Color.fromARGB(255, 12, 54, 79),
                                 borderRadius: BorderRadius.circular(5)
                               ),
                               child: ListTile(   
                                       leading: CircleAvatar(
                                               backgroundColor: Colors.white,
-                                              child: Text('${index + 1}'),
+                                              child: Text('${index + 1}',style: TextStyle(color:  const Color.fromARGB(255, 12, 54, 79)),),
                                             ),
                                       title:Text(book.name, style: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
                                       subtitle:Text("Author: ${book.author} | Year: ${book.year}", style: const TextStyle(color: Colors.white70,fontWeight: FontWeight.bold),),
