@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'books.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,8 +18,8 @@ class _MyAppState extends State<MyApp> {
    TextEditingController authorname = TextEditingController();
    TextEditingController publishyear = TextEditingController();
    bool flag = true;
-   List<Book> books = [];
-
+   List<dynamic> books=[];
+   final String apiUrl = 'https://681cd33bf74de1d219adee2a.mockapi.io/books';
 
   @override
   void initState() {
@@ -30,36 +29,40 @@ class _MyAppState extends State<MyApp> {
 
   // Add books to API
   Future<void> addBook() async {
-    const String apiUrl = 'https://681cd33bf74de1d219adee2a.mockapi.io/books';
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    headers: {'Content-Type': 'application/json'},
+    body: json.encode({
+      'name': bookname.text,
+      'author': authorname.text,
+      'year': publishyear.text,
+    }),
+  );
 
-    http.post(
-      Uri.parse(apiUrl),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({
-        'name': bookname.text,
-        'author': authorname.text,
-        'year': publishyear.text,
-      }),
-    );
+  if (response.statusCode == 201) {
     bookname.clear();
     authorname.clear();
     publishyear.clear();
+    await fetchBooks(); 
   }
+}
 
   // Fetch books from API
   Future<void> fetchBooks() async {
-    const String apiUrl = 'https://681cd33bf74de1d219adee2a.mockapi.io/books';
-
     final response = await http.get(Uri.parse(apiUrl));
-    List<dynamic> data = jsonDecode(response.body);
     setState(() {
-      books = data.map((json) => Book.fromJson(json)).toList();
+           books = json.decode(response.body);
     });
   }
-  deleteBook(String id){
-    final String deleteUrl = 'https://681cd33bf74de1d219adee2a.mockapi.io/books/$id';
-    http.delete(Uri.parse(deleteUrl));
+  Future<void> deleteBook(String id) async {
+  final String deleteUrl = '$apiUrl/$id';
+  final response = await http.delete(Uri.parse(deleteUrl));
+
+  if (response.statusCode == 200) {
+    await fetchBooks();
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -111,14 +114,11 @@ class _MyAppState extends State<MyApp> {
                   hintText: "Enter Book Publish Year",
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 30),
               ElevatedButton.icon(
                 onPressed: (){
-                  setState(() {
                     addBook();
-                    fetchBooks();
-                  });
-                },
+                  },
                 label:Text(
                   "Add Book", style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
@@ -158,14 +158,11 @@ class _MyAppState extends State<MyApp> {
                                               backgroundColor: Colors.white,
                                               child: Text('${index + 1}',style: TextStyle(color:  const Color.fromARGB(255, 12, 54, 79)),),
                                             ),
-                                      title:Text(book.name, style: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
-                                      subtitle:Text("Author: ${book.author} | Year: ${book.year}", style: const TextStyle(color: Colors.white70,fontWeight: FontWeight.bold),),
+                                      title:Text(book['name'], style: const TextStyle(color: Colors.white,fontSize: 16,fontWeight: FontWeight.bold),),
+                                      subtitle:Text("Author: ${book['author']} | Year: ${book['year']}", style: const TextStyle(color: Colors.white70,fontWeight: FontWeight.bold),),
                                       trailing:GestureDetector(
-                                                  onTap: (){
-                                                    setState(() {
-                                                      deleteBook(book.id);
-                                                      fetchBooks();
-                                                    });
+                                                 onTap: () async {
+                                                    await deleteBook(book['id']);
                                                   },
                                                   child: Icon(Icons.delete,color:Colors.white ,size: 28,),
                                                 ),
